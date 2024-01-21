@@ -1,0 +1,99 @@
+version: "3.8"
+services:
+  db:
+    container_name: db
+    image: "postgres"
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    ports:
+      - 5432:5432
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data"
+    restart: always
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: postgres
+      PGUSER: postgres
+      POSTGRES_PASSWORD: example
+  app:
+    container_name: app
+    image: "rails"
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    # command: 'bash -c ''bundle exec puma -C config/puma.rb'''
+    command: /bin/bash -c "rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
+    volumes:
+      - ".:/app"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+      - sidekiq
+      # - sidekiq_redis
+    environment:
+      DB_NAME: app
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: example
+  http:
+    container_name: http
+    image: "nginx"
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    # # command: /bin/bash -c "rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
+    restart: always
+    volumes:
+      - ".:/app"
+  redis:
+      container_name: redis
+      image: "redis"
+      build:
+        context: .
+        dockerfile: ./docker/redis/Dockerfile
+      command: redis-server
+      ports:
+        - "${REDIS_PORT}:${REDIS_PORT}"
+      volumes:
+        - "redis:/data"
+  sidekiq:
+    container_name: sidekiq
+    image: "sidekiq"
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    depends_on:
+      - db
+    volumes:
+      - '.:/app'
+    env_file: .env
+    environment:
+      RAILS_ENV: ${ENV}
+      ENABLE_BOOTSNAP: 'false'
+    entrypoint: ./sh/entrypoints/sidekiq-entrypoint.sh
+
+  # cable:
+  #   container_name: cable
+  #   image: "cable"
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/rails/Dockerfile
+  #   command: puma -p 28080 cable/config.ru
+  #   depends_on:
+  #     - redis
+  #   ports:
+  #     - '28080:28080'
+  #   volumes:
+  #     - '.:/app'
+volumes:
+  redis:
+  postgres_data:

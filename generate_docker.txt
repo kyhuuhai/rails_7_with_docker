@@ -1,0 +1,293 @@
+# rails app:template LOCATION='https://gist.github.com/davidtolsma/3af8f8961abe3a635e41776fe2f3af54/raw'
+
+# This sets up docker for rails with nginx, postgres, redis, sidekiq, and action_cable
+
+# rails 6.1
+# ruby 2.7.2
+# required gems: pg, redis, sidekiq
+# requires config/sidekiq.yml config/initializers/sidekiq.rb cable/config.ru
+
+create_file 'docker/nginx/Dockerfile' do <<~YAML
+YAML
+end
+
+inject_into_file 'docker/nginx/Dockerfile' do <<~YAML
+# ./docker/web/Dockerfile
+# Base image:
+FROM nginx
+# Install dependencies
+RUN apt-get update -qq && apt-get -y install apache2-utils
+
+# establish where Nginx should look for files
+ENV RAILS_ROOT /app
+
+# Set our working directory inside the image
+WORKDIR $RAILS_ROOT
+
+# create log directory
+RUN mkdir -p log
+
+# copy over static assets
+COPY public public/
+
+# Copy Nginx config template
+COPY docker/nginx/nginx.conf /tmp/docker.nginx
+
+# substitute variable references in the Nginx config template for real values from the environment
+# put the final config in its place
+RUN envsubst '$RAILS_ROOT' < /tmp/docker.nginx > /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+# Use the "exec" form of CMD so Nginx shuts down gracefully on SIGTERM (i.e. `docker stop`)
+CMD [ "nginx", "-g", "daemon off;" ]
+YAML
+end
+
+
+create_file 'docker/nginx/nginx.conf' do <<~YAML
+YAML
+end
+
+inject_into_file 'docker/nginx/nginx.conf' do <<~YAML
+upstream app {
+    server app:3000 fail_timeout=0;
+}
+
+server {
+    listen 80;
+    server_name localhost;
+
+    root /app/public;
+
+    location / {
+        proxy_pass http://app;
+        proxy_set_header  Host $host;
+        proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        proxy_set_header  X-Forwarded-Port $server_port;
+        proxy_set_header  X-Forwarded-Host $host;
+    }
+
+    location /cable {
+        proxy_pass         http://app;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection "upgrade";
+        proxy_set_header   Host $http_host;
+        break;
+    }
+
+    error_page 500 502 503 504 /500.html;
+    client_max_body_size 4G;
+    keepalive_timeout 10;
+}
+YAML
+end
+
+
+create_file 'docker/postgres/Dockerfile' do <<~YAML
+YAML
+end
+
+inject_into_file 'docker/postgres/Dockerfile' do <<-YAML
+FROM postgres
+YAML
+end
+
+
+create_file 'docker/rails/Dockerfile' do <<~YAML
+YAML
+end
+
+inject_into_file 'docker/rails/Dockerfile' do <<-YAML
+FROM ruby:2.7.2
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+  curl \
+  build-essential \
+  libpq-dev && \
+  curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+  apt-get update && apt-get install -y nodejs yarn
+
+COPY Gemfile .
+# COPY Gemfile.lock .
+RUN gem install bundler
+RUN gem update bundler
+RUN bundle install --jobs 5
+
+COPY package.json .
+COPY yarn.lock .
+RUN yarn install
+
+EXPOSE 3000
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+YAML
+end
+
+
+create_file 'docker/redis/Dockerfile' do <<~YAML
+YAML
+end
+
+inject_into_file 'docker/redis/Dockerfile' do <<-YAML
+FROM redis:5-alpine
+YAML
+end
+
+
+create_file 'docker-compose.yml' do <<~YAML
+  version: "3.8"
+  services:
+YAML
+end
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  db:
+    container_name: db
+    image: "postgres"
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    ports:
+      - 5432:5432
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: user
+      POSTGRES_DB: app
+
+  YAML
+end
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  app:
+    container_name: app
+    image: "rails"
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    # command: 'bash -c ''bundle exec puma -C config/puma.rb'''
+    command: /bin/bash -c "rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
+    volumes:
+      - ".:/app"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+      - sidekiq
+      - sidekiq_redis
+    environment:
+      DB_USER: user
+      DB_NAME: app
+      DB_PASSWORD: example
+      DB_HOST: db
+
+   YAML
+end
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  http:
+    container_name: http
+    image: "nginx"
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    # # command: /bin/bash -c "rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
+    restart: always
+    volumes:
+      - ".:/app"
+
+   YAML
+end
+
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  redis:
+    container_name: redis
+    image: "redis"
+    build:
+      context: .
+      dockerfile: ./docker/redis/Dockerfile
+    command: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis:/data"
+
+   YAML
+end
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  sidekiq_redis:
+    container_name: sidekiq_redis
+    image: "redis"
+    build:
+      context: .
+      dockerfile: ./docker/redis/Dockerfile
+    command: "redis-server --port 6380"
+    ports:
+      - "6380:6380"
+    volumes:
+      - "sidekiq_redis:/data"
+
+   YAML
+end
+
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  sidekiq:
+    container_name: sidekiq
+    image: "sidekiq"
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    depends_on:
+      - db
+      - sidekiq_redis
+    volumes:
+      - '.:/app'
+
+   YAML
+end
+
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+  cable:
+    container_name: cable
+    image: "cable"
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    command: puma -p 28080 cable/config.ru
+    depends_on:
+      - redis
+    ports:
+      - '28080:28080'
+    volumes:
+      - '.:/app'
+
+   YAML
+end
+
+
+inject_into_file 'docker-compose.yml' do <<-YAML
+volumes:
+  redis:
+  sidekiq_redis:
+  postgres:
+   YAML
+end
