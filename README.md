@@ -1,24 +1,13 @@
-# README
+# sudo docker compose build
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# sudo docker compose up -d
 
-Things you may want to cover:
+# sudo docker attach $(sudo docker compose ps -q app)
 
-* Ruby version
+# sudo docker compose exec app sh
 
-* System dependencies
+# rake db:create
 
-* Configuration
+# rake db:migrate
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+# rake db:seed

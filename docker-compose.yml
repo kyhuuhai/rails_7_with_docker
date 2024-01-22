@@ -38,21 +38,23 @@ services:
       DB_HOST: db
       DB_USERNAME: postgres
       DB_PASSWORD: example
-  http:
-    container_name: http
-    image: "nginx"
-    ports:
-      - 80:80
-      - 443:443
-    depends_on:
-      - app
-    build:
-      context: .
-      dockerfile: ./docker/nginx/Dockerfile
-    # # command: /bin/bash -c "rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
-    restart: always
-    volumes:
-      - ".:/app"
+    tty: true
+    stdin_open: true
+  # http:
+  #   container_name: http
+  #   image: "nginx"
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   depends_on:
+  #     - app
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/nginx/Dockerfile
+  #   # # command: /bin/bash -c "rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
+  #   restart: always
+  #   volumes:
+  #     - ".:/app"
   redis:
       container_name: redis
       image: "redis"
