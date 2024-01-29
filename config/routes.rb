@@ -7,10 +7,7 @@ Rails.application.routes.draw do
 
   scope module: 'api' do
     namespace :v1 do
-      mount_devise_token_auth_for 'User', at: 'auth', controllers: {
-        sessions: 'api/v1/sessions'
-      }
-
+      post 'login', to: "sessions#create"
       resources :users
     end
   end

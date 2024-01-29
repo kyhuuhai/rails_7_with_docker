@@ -1,4 +1,4 @@
-class DeviseTokenAuthCreateUser < ActiveRecord::Migration[7.0]
+class CreateUser < ActiveRecord::Migration[7.0]
   def change
 
     create_table(:users) do |t|
@@ -33,9 +33,6 @@ class DeviseTokenAuthCreateUser < ActiveRecord::Migration[7.0]
       t.string :fullname
       t.string :image
       t.string :email
-
-      ## Tokens
-      t.json :tokens
 
       t.timestamps
     end

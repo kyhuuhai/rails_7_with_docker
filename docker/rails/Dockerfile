@@ -12,7 +12,9 @@ RUN apt-get update && apt-get install -y \
   apt-get update && apt-get install -y nodejs yarn
 
 COPY Gemfile .
-# COPY Gemfile.lock .
+COPY Gemfile.lock .
+COPY .env .
+
 RUN gem install bundler
 RUN gem update bundler
 RUN bundle install --jobs 5

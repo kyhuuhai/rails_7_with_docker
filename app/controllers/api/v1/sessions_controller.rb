@@ -1,25 +1,15 @@
 module Api::V1
-  class SessionsController < DeviseTokenAuth::SessionsController
+  class SessionsController < ApiController
     def create
-      @user = resource_class.find_by_email(resource_params[:email])
+      @user = User.find_by_email(params[:email])
 
-      if @user and valid_params? and @user.valid_password?(resource_params[:password])
-        @client_id = SecureRandom.urlsafe_base64(nil, false)
-        @token     = SecureRandom.urlsafe_base64(nil, false)
+      if @user and valid_params? and @user.valid_password?(params[:password])
+        token = encode_token({
+          user_id: @user.id,
+          expired_time: Time.zone.now + 1.hour
+        })
 
-        @user.tokens[@client_id] = {
-          token: BCrypt::Password.create(@token),
-          expiry: (Time.now + DeviseTokenAuth.token_lifespan).to_i
-        }
-        @user.save
-
-        json_response_success @user, UserSerializer
-      elsif @user
-        json_response_fail errors: [
-            "A confirmation email was sent to your account at #{@user.email}. "+
-            "You must follow the instructions in the email before your account "+
-            "can be activated"
-          ], status: 401
+        json_response_success @user, UserSerializer, {token: token}
       else
         json_response_fail errors: ["Invalid login credentials. Please try again."], status: 401
       end

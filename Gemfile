@@ -37,7 +37,9 @@ gem "config", "~> 5.1"
 
 gem "kaminari", "~> 1.2"
 
-gem "devise_token_auth", "~> 1.2"
+gem 'jwt'
+
+gem 'dotenv'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -48,5 +50,3 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
 end
-
-
