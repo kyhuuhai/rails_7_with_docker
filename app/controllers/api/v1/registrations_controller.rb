@@ -1,20 +1,18 @@
 module Api::V1
   class RegistrationsController < Devise::RegistrationsController
-    respond_to :json
-
     def create
-      user = User.new user_params
-      if user.save
-        render json: {message: "Registration has been completed",user: user}, status: 200
-      else
-        warden.custom_failure!
-        render json: {message: error_messages(user.errors.messages), status: 200
+      super do |resource|
+        if resource.persisted?
+          json_response_success resource, UserSerializer and return
+        else
+          json_response_fail errors: resource.errors.full_messages, status: 422 and return
+        end
       end
     end
 
     private
-    def user_params
-      params.require(:user).permit :email, :password, :password_confirmation
+    def sign_up_params
+      params.require(:user).permit :email, :password, :password_confirmation, :username, :fullname, :image
     end
   end
 end

@@ -18,16 +18,14 @@ module Session
   end
 
   def current_user
-    render json: { message: 'Please log in' }, status: :unauthorized and return unless decoded_token
+    return nil unless decoded_token
 
-    data = decoded_token.first
+    token_data = decoded_token.first
 
-    @user ||= User.find_by_id(data["user_id"])
-    is_expired = data["expired_time"].to_datetime <= Time.zone.now
+    @user ||= User.find_by_id(token_data["user_id"])
+    is_expired = token_data["expired_time"].to_datetime <= Time.zone.now
 
-    if is_expired || !@user
-      raise ActiveRecord::RecordNotFound
-    end
+    return nil if is_expired || !@user
 
     @user
   end
@@ -37,4 +35,8 @@ module Session
 
     render json: { message: 'Please log in' }, status: :unauthorized
   end
+
+  # def user_signed_in?
+  #   current_user.present?
+  # end
 end
