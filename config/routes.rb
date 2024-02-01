@@ -1,12 +1,13 @@
 Rails.application.routes.draw do
-  root to: "home#index"
+  mount Rswag::Ui::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api-docs'
 
   namespace :admin do
     resources :users
   end
-  scope module: 'api' do
+
+  scope module: 'api', format: "json" do
     namespace :v1 do
-      # post 'login', to: "sessions#create"
       devise_for  :users,
         path: '',
         path_names: { session:       'login',
@@ -14,6 +15,7 @@ Rails.application.routes.draw do
                       registration:  'sign_up' }
 
       resources :users
+      resources :api_docs, only: [:index]
     end
   end
 end
