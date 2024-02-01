@@ -1,10 +1,9 @@
 Rails.application.routes.draw do
+  devise_for :admin_users, ActiveAdmin::Devise.config
+  ActiveAdmin.routes(self)
+  mount Ckeditor::Engine => '/ckeditor'
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
-
-  namespace :admin do
-    resources :users
-  end
 
   scope module: 'api', format: "json" do
     namespace :v1 do

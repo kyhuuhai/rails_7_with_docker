@@ -1,4 +1,6 @@
 module Response
+  extend ActiveSupport::Concern
+
   def json_response_success object, serializer=nil, optional= ({})
     render json: {
       success: true,

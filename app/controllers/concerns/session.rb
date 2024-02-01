@@ -1,4 +1,6 @@
 module Session
+  extend ActiveSupport::Concern
+
   def encode_token(payload)
     JWT.encode(payload, ENV['JWT_SECRECT_TOKEN'])
   end
