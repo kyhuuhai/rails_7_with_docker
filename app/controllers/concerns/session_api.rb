@@ -1,4 +1,4 @@
-module Session
+module SessionApi
   extend ActiveSupport::Concern
 
   def encode_token(payload)

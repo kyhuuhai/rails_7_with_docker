@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rails 7</title>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+    <section class="vh-100">
+      <%= render "shared/header" %>
+
+      <div class="container h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <%= yield %>
+        </div>
+      </div>
+    </section>
+
+  </body>
+</html>

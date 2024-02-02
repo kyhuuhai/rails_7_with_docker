@@ -1,29 +1,42 @@
-<h2>Sign up</h2>
+<div class="col-md-9 col-lg-6 col-xl-5">
+  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+    class="img-fluid" alt="Sample image">
+</div> 
+<div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+    <div class="divider d-flex align-items-center my-4">
+      <h1 class="text-center fw-bold mx-3 mb-0">Sign Up</h1>
+    </div>
+  
+    <%= render "devise/shared/error_messages", resource: resource %>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <div class="form-outline mb-4">
+      <%= f.text_field :email, autofocus: true, class: "form-control form-control-lg", placeholder: "Enter a email address" %>
+    </div>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+    <div class="form-outline mb-4">
+      <%= f.text_field :username, autofocus: true, class: "form-control form-control-lg", placeholder: "Username" %>
+      <label class="form-label" for="form3Example3">Username</label>
+    </div>
 
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
+    <div class="form-outline mb-4">
+      <%= f.text_field :fullname, autofocus: true, class: "form-control form-control-lg", placeholder: "Full name" %>
+      <label class="form-label" for="form3Example3">Full name</label>
+    </div>
 
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
+    <div class="form-outline mb-4">
+      <%= f.password_field :password, autofocus: true, class: "form-control form-control-lg", placeholder: "Enter Password" %>
+      <label class="form-label" for="form3Example3">Password</label>
+    </div>
 
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
+    <div class="form-outline mb-4">
+      <%= f.password_field :password_confirmation, autofocus: true, class: "form-control form-control-lg", placeholder: "Enter Password Confirmation" %>
+      <label class="form-label" for="form3Example3">Password Confirmation</label>
+    </div>
 
-<%= render "devise/shared/links" %>
+    <div class="text-center text-lg-start mt-4 pt-2">
+      <%= f.submit "Sign up", class: "btn btn-primary btn-lg",
+        html: {style: "padding-left: 2.5rem; padding-right: 2.5rem;"} %>
+    </div>
+  <% end %>
+</div>

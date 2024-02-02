@@ -14,7 +14,7 @@ Devise.setup do |config|
   # confirmation, reset password and unlock tokens in the database.
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
-  # config.secret_key = '4bfc09989f558fa1d968876188cb48d0e17795d873f248a0dcd46f1ceda3711b52b8bc2ce77f67d58cd6e30aa0a621a8e303df05cd39d99d3c81ab54590489f9'
+  # config.secret_key = 'b5d72c912252c3294f9bb27b73487438859300713a373c428614b4c72b23e80924c26ec3fd2a928648a60f7cb84a14441cbe805c2b42668d528cf66b0e21fe89'
 
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
@@ -126,7 +126,7 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 12
 
   # Set up a pepper to generate the hashed password.
-  # config.pepper = 'ce8162b3c17484c87f1bc0767535a116d3bf9b269f064f47b9a5d9fe80875ce69a6c50e38b478084496dd888a2855dfad633ca77e27bc11291c25a501670d546'
+  # config.pepper = 'd871ebada09e2a64a5c390b008cbe31f484942599bd84bf97bfd99702bd69f2d0c7ff0058d335a29d78b0e6fbefac5178ea5c6d42a1c8e33ffe7087bb04cf441'
 
   # Send a notification to the original email when the user's email is changed.
   # config.send_email_changed_notification = false
@@ -244,7 +244,7 @@ Devise.setup do |config|
   # Turn scoped views on. Before rendering "sessions/new", it will first check for
   # "users/sessions/new". It's turned off by default because it's slower if you
   # are using only default views.
-  # config.scoped_views = false
+  config.scoped_views = true
 
   # Configure the default scope given to Warden. By default it's the first
   # devise role declared in your routes (usually :user).
@@ -303,7 +303,7 @@ Devise.setup do |config|
   # these new defaults that match Hotwire/Turbo behavior.
   # Note: These might become the new default in future versions of Devise.
   config.responder.error_status = :unprocessable_entity
-  config.responder.redirect_status = :see_other
+  # config.responder.redirect_status = :see_other
 
   # ==> Configuration for :registerable
 

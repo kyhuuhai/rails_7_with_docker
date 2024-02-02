@@ -17,4 +17,7 @@ Rails.application.routes.draw do
       resources :api_docs, only: [:index]
     end
   end
+
+  devise_for :users
+  root to: "home#index"
 end

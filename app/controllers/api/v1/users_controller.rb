@@ -1,5 +1,5 @@
 module Api::V1
-  class UsersController < ApplicationController
+  class UsersController < ApiController
     before_action :require_user
 
     def index
