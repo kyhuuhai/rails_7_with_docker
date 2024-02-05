@@ -1,7 +1,11 @@
-# Redis configuration
 :concurrency: 5
+:max_retries: 3
+
 :queues:
   - default
+  - low
+  - medium
+  - high
 
 # Set Redis connection URL
 production:
