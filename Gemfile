@@ -59,9 +59,9 @@ gem 'bootstrap', '~> 5.3.2'
 
 gem 'jquery-rails'
 
-group :development do
-  gem "capistrano", "~> 3.17", require: false
-end
+# group :development do
+#   gem "capistrano", "~> 3.17", require: false
+# end
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
