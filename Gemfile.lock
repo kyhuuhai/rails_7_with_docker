@@ -91,6 +91,8 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
+    airbrussh (1.5.1)
+      sshkit (>= 1.6.1, != 1.7.0)
     arbre (1.7.0)
       activesupport (>= 3.0.0)
       ruby2_keywords (>= 0.0.2)
@@ -106,6 +108,11 @@ GEM
       popper_js (>= 2.11.8, < 3)
     builder (3.2.4)
     cancancan (3.5.0)
+    capistrano (3.18.0)
+      airbrussh (>= 1.0.0)
+      i18n
+      rake (>= 10.0.0)
+      sshkit (>= 1.9.0)
     carrierwave (3.0.5)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -237,8 +244,13 @@ GEM
       net-protocol
     net-protocol (0.2.2)
       timeout
+    net-scp (4.0.0)
+      net-ssh (>= 2.6.5, < 8.0.0)
+    net-sftp (4.0.0)
+      net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.4.0.1)
       net-protocol
+    net-ssh (7.2.1)
     nio4r (2.7.0)
     nokogiri (1.16.0-aarch64-linux)
       racc (~> 1.4)
@@ -256,6 +268,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.3)
     rack (2.2.8)
+    rack-attack (6.7.0)
+      rack (>= 1.0, < 4)
     rack-cors (2.0.1)
       rack (>= 2.0.0)
     rack-session (1.0.2)
@@ -370,6 +384,11 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    sshkit (1.22.0)
+      mutex_m
+      net-scp (>= 1.1.2)
+      net-sftp (>= 2.1.2)
+      net-ssh (>= 2.8.0)
     ssrf_filter (1.1.2)
     stringio (3.1.0)
     temple (0.10.3)
@@ -397,6 +416,7 @@ DEPENDENCIES
   bootsnap
   bootstrap (~> 5.3.2)
   cancancan
+  capistrano (~> 3.17)
   carrierwave (~> 3.0)
   ckeditor
   config (~> 5.1)
@@ -410,6 +430,7 @@ DEPENDENCIES
   mini_magick
   pg (~> 1.1)
   puma (~> 5.0)
+  rack-attack (~> 6.7)
   rack-cors
   rails (~> 7.1.3)
   redis
